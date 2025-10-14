@@ -21,8 +21,8 @@ def process_track(file_path, music_gain, voc_gain, bass_gain):
             messagebox.showerror("Ошибка", "ffmpeg не найден в PATH!")
             return
 
-        # Усиление музыки, вокала и баса в одном filter_complex
-        ffmpeg_cmd = f'''ffmpeg -y -i "{file_path}" -filter_complex "[0:a]volume={music_gain}[mus];[0:a]volume={voc_gain}[voc];[mus][voc]amix=inputs=2:normalize=0, bass=g={bass_gain}[a]" -map "[a]" "{output_file}"'''
+        # Усиление музыки, вокала и баса с очисткой метаданных
+        ffmpeg_cmd = f'''ffmpeg -y -i "{file_path}" -filter_complex "[0:a]volume={music_gain}[mus];[0:a]volume={voc_gain}[voc];[mus][voc]amix=inputs=2:normalize=0, bass=g={bass_gain}[a]" -map "[a]" -map_metadata -1 "{output_file}"'''
         subprocess.run(ffmpeg_cmd, shell=True, check=True)
 
         # Удаляем исходный файл
@@ -59,8 +59,9 @@ def start_processing():
 
     messagebox.showinfo("Готово", "Все треки обработаны!")
 
+# === Настройка окна GUI ===
 root = tk.Tk()
-root.title("Music Boost GUI Fixed")
+root.title("Music Boost GUI — Clean Metadata")
 
 folder_path = tk.StringVar()
 
@@ -91,4 +92,3 @@ bass_slider.pack(fill=tk.X, padx=20)
 tk.Button(root, text="Запустить обработку", command=start_processing, bg="green", fg="white").pack(pady=20)
 
 root.mainloop()
-
